@@ -2,17 +2,26 @@
 
 ## Pre-requisites
 
-You will need [pyenv]() and [pipenv]() installed on your system.
 This application requires Python 3.10 or higher.
+
+It is recommended to use [pyenv](https://github.com/pyenv/pyenv) to manage Python installations.
 
 ## Install
 
 ```
-$ pipenv install
+$ python3 -m venv .venv
+$ source .venv/bin/activate
+(.venv) $ pip install -r requirements.txt
 ```
 
 ## Run
 
 ```
-$ pipenv run python main.py
+(.venv) $ python main.py
 ```
+
+Open [localhost:8080](http://localhost:8080/) in your web browser to see the running app.
+
+## Test
+
+There are currently no tests.

@@ -100,4 +100,6 @@ async def schedule_route(request: Request) -> _TemplateResponse:
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", host="127.0.0.1", port=8080, reload=True)
+    host: str = "127.0.0.1"
+    port: int = 8080
+    uvicorn.run("main:app", host=host, port=port, reload=True)
