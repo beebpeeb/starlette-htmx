@@ -1,0 +1,14 @@
+autodetect: false
+bandit:
+  run: true
+max-line-length: 100
+pylint:
+  disable:
+    - missing-class-docstring
+    - missing-function-docstring
+    - missing-module-docstring
+    - too-few-public-methods
+  load-plugins:
+    - pylint_pydantic
+  options:
+    extension-pkg-whitelist: pydantic

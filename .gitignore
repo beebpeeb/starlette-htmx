@@ -1,7 +1,6 @@
 .*
 !/.editorconfig
 !/.gitignore
-!/.pylintrc
-!/.python-version
+!/.prospector.yaml
 !/.vscode/settings.json
 /__pycache__/
