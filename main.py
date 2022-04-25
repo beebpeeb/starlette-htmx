@@ -2,7 +2,7 @@ from datetime import date, datetime
 from json import JSONDecodeError
 import logging
 import re
-from typing import Any, Dict, Literal
+from typing import Any, Dict, Literal, TypeAlias
 
 from babel.dates import format_date
 from httpx import AsyncClient, RequestError
@@ -59,10 +59,13 @@ class Show(BaseModel):
         return self.start_time.strftime("%H:%M")
 
 
+Schedule: TypeAlias = list[Show]
+
+
 # HTTP Client
 # -----------
 
-async def get_schedule() -> list[Show] | None:
+async def get_schedule() -> Schedule | None:
     async with AsyncClient() as client:
         try:
             response = await client.get(API_URL)
@@ -90,7 +93,7 @@ async def homepage_route(request: Request) -> Response:
 @app.route("/_htmx/schedule")
 async def schedule_route(request: Request) -> Response:
     """Schedule"""
-    schedule: list[Show] | None = await get_schedule()
+    schedule: Schedule | None = await get_schedule()
     template: str = "partials/schedule.html"
     context: Dict[str, Any] = dict(request=request, schedule=schedule)
     return templates.TemplateResponse(template, context)
