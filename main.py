@@ -23,7 +23,7 @@ app = Starlette(debug=True)
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-templates = Jinja2Templates(directory="templates")
+templates: Jinja2Templates = Jinja2Templates(directory="templates")
 
 jinja_partials.register_starlette_extensions(templates)
 
@@ -59,13 +59,13 @@ class Show(BaseModel):
         return self.start_time.strftime("%H:%M")
 
 
-Schedule: TypeAlias = list[Show]
+Schedule: TypeAlias = list[Show] | None
 
 
 # HTTP Client
 # -----------
 
-async def get_schedule() -> Schedule | None:
+async def get_schedule() -> Schedule:
     async with AsyncClient() as client:
         try:
             response = await client.get(API_URL)
@@ -93,7 +93,7 @@ async def homepage_route(request: Request) -> Response:
 @app.route("/_htmx/schedule")
 async def schedule_route(request: Request) -> Response:
     """Schedule"""
-    schedule: Schedule | None = await get_schedule()
+    schedule: Schedule = await get_schedule()
     template: str = "partials/schedule.html"
     context: Dict[str, Any] = dict(request=request, schedule=schedule)
     return templates.TemplateResponse(template, context)
