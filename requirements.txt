@@ -1,0 +1,11 @@
+Babel
+bandit
+httpx
+Jinja2
+jinja_partials
+mypy
+pydantic
+pylint
+pylint-pydantic
+starlette
+uvicorn[standard]

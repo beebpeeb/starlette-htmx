@@ -1,0 +1,7 @@
+.*
+!/.editorconfig
+!/.gitignore
+!/.pylintrc
+!/.python-version
+!/.vscode/settings.json
+/__pycache__/
