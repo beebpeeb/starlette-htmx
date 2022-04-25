@@ -2,7 +2,7 @@ from datetime import date, datetime
 from json import JSONDecodeError
 import logging
 import re
-from typing import Literal
+from typing import Any, Dict, Literal
 
 from babel.dates import format_date
 from httpx import AsyncClient, RequestError
@@ -80,19 +80,19 @@ async def get_schedule() -> list[Show] | None:
 @app.route("/")
 async def homepage_route(request: Request) -> Response:
     """Homepage"""
-    title = "Dagskrá RÚV"
-    today = format_date(date.today(), format="full", locale="is")
-    template = "index.html"
-    context = dict(request=request, title=title, today=today)
+    title: str = "Dagskrá RÚV"
+    today: str = format_date(date.today(), format="full", locale="is")
+    template: str = "index.html"
+    context: Dict[str, Any] = dict(request=request, title=title, today=today)
     return templates.TemplateResponse(template, context)
 
 
 @app.route("/_htmx/schedule")
 async def schedule_route(request: Request) -> Response:
     """Schedule"""
-    schedule = await get_schedule()
-    template = "partials/schedule.html"
-    context = dict(request=request, schedule=schedule)
+    schedule: list[Show] | None = await get_schedule()
+    template: str = "partials/schedule.html"
+    context: Dict[str, Any] = dict(request=request, schedule=schedule)
     return templates.TemplateResponse(template, context)
 
 
