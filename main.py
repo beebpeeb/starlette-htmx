@@ -11,8 +11,9 @@ from pydantic import BaseModel, Field
 
 from starlette.applications import Starlette
 from starlette.requests import Request
+from starlette.responses import Response
 from starlette.staticfiles import StaticFiles
-from starlette.templating import _TemplateResponse, Jinja2Templates
+from starlette.templating import Jinja2Templates
 
 
 # Config
@@ -77,7 +78,7 @@ async def get_schedule() -> list[Show] | None:
 # ------
 
 @app.route("/")
-async def homepage_route(request: Request) -> _TemplateResponse:
+async def homepage_route(request: Request) -> Response:
     """Homepage"""
     title = "Dagskrá RÚV"
     today = format_date(date.today(), format="full", locale="is")
@@ -87,7 +88,7 @@ async def homepage_route(request: Request) -> _TemplateResponse:
 
 
 @app.route("/_htmx/schedule")
-async def schedule_route(request: Request) -> _TemplateResponse:
+async def schedule_route(request: Request) -> Response:
     """Schedule"""
     schedule = await get_schedule()
     template = "partials/schedule.html"
