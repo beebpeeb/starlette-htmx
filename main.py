@@ -2,6 +2,7 @@ from datetime import date, datetime
 from json import JSONDecodeError
 import logging
 import re
+from typing import Literal
 
 from babel.dates import format_date
 from httpx import AsyncClient, RequestError
@@ -42,10 +43,10 @@ class Show(BaseModel):
     title: str
 
     class Config:
-        anystr_strip_whitespace: bool = True
+        anystr_strip_whitespace: Literal[True, False] = True
 
     @property
-    def is_repeat(self) -> bool:
+    def is_repeat(self) -> Literal[True, False]:
         return bool(regex.search(self.description))
 
     @property
