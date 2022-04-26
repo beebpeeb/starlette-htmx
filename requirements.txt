@@ -1,11 +1,12 @@
 Babel
+Jinja2
 bandit
 httpx
-Jinja2
 jinja_partials
 mypy
 pydantic
 pylint
 pylint-pydantic
 starlette
+types-babel
 uvicorn[standard]

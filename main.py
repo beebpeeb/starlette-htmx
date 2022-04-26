@@ -2,7 +2,7 @@ from datetime import date, datetime
 from json import JSONDecodeError
 import logging
 import re
-from typing import Any, Dict, Literal, TypeAlias
+from typing import Any, Dict, Literal, Match, Pattern
 
 from babel.dates import format_date
 from httpx import AsyncClient, RequestError
@@ -19,7 +19,7 @@ from starlette.templating import Jinja2Templates
 # Config
 # ------
 
-app = Starlette(debug=True)
+app: Starlette = Starlette(debug=True)
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
@@ -33,7 +33,7 @@ API_URL: str = "https://apis.is/tv/ruv"
 # Models
 # ------
 
-regex = re.compile(r"(\W+)e.?\s*$", re.MULTILINE)
+regex: Pattern = re.compile(r"(\W+)e.?\s*$", re.MULTILINE)
 
 
 class Show(BaseModel):
@@ -48,7 +48,8 @@ class Show(BaseModel):
 
     @property
     def is_repeat(self) -> Literal[True, False]:
-        return bool(regex.search(self.description))
+        match: Match | None = regex.search(self.description)
+        return bool(match)
 
     @property
     def stripped_description(self) -> str:
@@ -59,7 +60,7 @@ class Show(BaseModel):
         return self.start_time.strftime("%H:%M")
 
 
-Schedule: TypeAlias = list[Show] | None
+Schedule = list[Show] | None
 
 
 # HTTP Client
@@ -80,13 +81,16 @@ async def get_schedule() -> Schedule:
 # Routes
 # ------
 
+TemplateContext = Dict[str, Any]
+
+
 @app.route("/")
 async def homepage_route(request: Request) -> Response:
     """Homepage"""
     title: str = "Dagskrá RÚV"
     today: str = format_date(date.today(), format="full", locale="is")
     template: str = "index.html"
-    context: Dict[str, Any] = dict(request=request, title=title, today=today)
+    context: TemplateContext = dict(request=request, title=title, today=today)
     return templates.TemplateResponse(template, context)
 
 
@@ -95,7 +99,7 @@ async def schedule_route(request: Request) -> Response:
     """Schedule"""
     schedule: Schedule = await get_schedule()
     template: str = "partials/schedule.html"
-    context: Dict[str, Any] = dict(request=request, schedule=schedule)
+    context: TemplateContext = dict(request=request, schedule=schedule)
     return templates.TemplateResponse(template, context)
 
 
