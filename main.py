@@ -1,11 +1,11 @@
 from datetime import date, datetime
-from json import JSONDecodeError
+import json
 import logging
 import re
 from typing import Any, Dict, Literal, Match, Pattern
 
 from babel.dates import format_date
-from httpx import AsyncClient, RequestError
+import httpx
 import jinja_partials
 from pydantic import BaseModel, Field
 
@@ -26,8 +26,6 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 templates: Jinja2Templates = Jinja2Templates(directory="templates")
 
 jinja_partials.register_starlette_extensions(templates)
-
-API_URL: str = "https://apis.is/tv/ruv"
 
 
 # Models
@@ -53,11 +51,13 @@ class Show(BaseModel):
 
     @property
     def stripped_description(self) -> str:
-        return regex.sub(r"\1", self.description).strip()
+        stripped: str = regex.sub(r"\1", self.description).strip()
+        return stripped
 
     @property
     def time(self) -> str:
-        return self.start_time.strftime("%H:%M")
+        time: str = self.start_time.strftime("%H:%M")
+        return time
 
 
 Schedule = list[Show] | None
@@ -67,13 +67,14 @@ Schedule = list[Show] | None
 # -----------
 
 async def get_schedule() -> Schedule:
-    async with AsyncClient() as client:
+    async with httpx.AsyncClient() as client:
         try:
-            response = await client.get(API_URL)
+            url: str = "https://apis.is/tv/ruv"
+            response: httpx.Response = await client.get(url)
             results = response.json().get("results")
             if results is not None:
                 return [Show.parse_obj(r) for r in results]
-        except (RequestError, JSONDecodeError) as error:
+        except (httpx.RequestError, json.JSONDecodeError) as error:
             logging.error(error)
         return None
 
