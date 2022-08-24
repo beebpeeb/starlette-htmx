@@ -1,20 +1,18 @@
-from datetime import date, datetime
 import json
 import logging
 import re
+from datetime import date, datetime
 from typing import Any, Dict, Literal, Match, Pattern
 
-from babel.dates import format_date
 import httpx
 import jinja_partials
+from babel.dates import format_date
 from pydantic import BaseModel, Field
-
 from starlette.applications import Starlette
 from starlette.requests import Request
 from starlette.responses import Response
 from starlette.staticfiles import StaticFiles
 from starlette.templating import Jinja2Templates
-
 
 # Config
 # ------
@@ -36,6 +34,7 @@ regex: Pattern = re.compile(r"(\W+)e.?\s*$", re.MULTILINE)
 
 class Show(BaseModel):
     """Pydantic model representing a TV show listing."""
+
     description: str
     is_live: bool = Field(..., alias="live")
     start_time: datetime = Field(..., alias="startTime")
@@ -65,6 +64,7 @@ Schedule = list[Show] | None
 
 # HTTP Client
 # -----------
+
 
 async def get_schedule() -> Schedule:
     async with httpx.AsyncClient() as client:
@@ -109,6 +109,7 @@ async def schedule_route(request: Request) -> Response:
 
 if __name__ == "__main__":
     import uvicorn
+
     host: str = "127.0.0.1"
     port: int = 8080
     uvicorn.run("main:app", host=host, port=port, reload=True)
