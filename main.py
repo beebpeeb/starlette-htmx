@@ -4,34 +4,23 @@ import logging
 import re
 
 from babel.dates import format_date
+from fastapi import FastAPI
+from fastapi.requests import Request
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
 import httpx
 from pydantic import BaseModel, Field, parse_obj_as
 from pydantic.dataclasses import dataclass
 
-from fastapi import FastAPI
-from fastapi.requests import Request
-from fastapi.responses import HTMLResponse
-from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
-
-
-# Config
-# ------
 
 app = FastAPI()
 
-app.mount("/static", StaticFiles(directory="static"), name="static")
-
-templates: Jinja2Templates = Jinja2Templates(directory="templates")
-
-
-# Models
-# ------
+templates = Jinja2Templates(directory="templates")
 
 regex = re.compile(r"(\W+)e.?\s*$", re.MULTILINE)
 
 
-class Show(BaseModel):
+class Listing(BaseModel):
     """Pydantic model representing a TV show listing."""
 
     description: str
@@ -58,33 +47,24 @@ class Show(BaseModel):
         return time
 
 
-Schedule = list[Show]
+Listings = list[Listing]
 
 
-# HTTP Client
-# -----------
-
-
-async def get_schedule() -> Schedule:
+async def get_listings() -> Listings:
     async with httpx.AsyncClient() as client:
-        schedule = []
+        listings = []
         try:
-            url: str = "https://apis.is/tv/ruv"
-            response: httpx.Response = await client.get(url)
+            url = "https://apis.is/tv/ruv"
+            response = await client.get(url)
             results = response.json().get("results")
-            return [parse_obj_as(Show, r) for r in results]
+            return [parse_obj_as(Listing, listing) for listing in results]
         except (httpx.RequestError, json.JSONDecodeError) as error:
             logging.error(error)
-        return schedule
-
-
-# Routes
-# ------
+        return listings
 
 
 @app.get("/", response_class=HTMLResponse)
-async def homepage_route(request: Request):
-    """Homepage"""
+def homepage_route(request: Request):
     title = "Dagskrá RÚV"
     today = format_date(date.today(), format="full", locale="is")
     template = "index.html"
@@ -92,10 +72,9 @@ async def homepage_route(request: Request):
     return templates.TemplateResponse(template, context)
 
 
-@app.get("/_schedule", response_class=HTMLResponse)
-async def schedule_route(request: Request):
-    """Schedule"""
-    schedule: Schedule = await get_schedule()
-    template = "_schedule.html"
-    context = dict(request=request, schedule=schedule)
+@app.get("/_listings", response_class=HTMLResponse)
+async def listings_route(request: Request):
+    listings: Listings = await get_listings()
+    template = "_listings.html"
+    context = dict(request=request, listings=listings)
     return templates.TemplateResponse(template, context)
