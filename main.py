@@ -10,7 +10,6 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from httpx import AsyncClient, RequestError
 from pydantic import BaseModel, Field, parse_obj_as
-from pydantic.dataclasses import dataclass
 
 
 app = FastAPI()
