@@ -1,7 +1,6 @@
 from datetime import date, datetime
 from json import JSONDecodeError
 import logging
-import re
 
 from babel.dates import format_date
 from fastapi import FastAPI
@@ -16,8 +15,6 @@ app = FastAPI()
 
 templates = Jinja2Templates(directory="templates")
 
-regex = re.compile(r"(\W+)e.?\s*$", re.MULTILINE)
-
 
 class Listing(BaseModel):
     description: str
@@ -30,12 +27,11 @@ class Listing(BaseModel):
 
     @property
     def is_repeat(self) -> bool:
-        match = regex.search(self.description)
-        return bool(match)
+        return self.description.endswith(" e.")
 
     @property
     def stripped_description(self) -> str:
-        return regex.sub(r"\1", self.description).strip()
+        return self.description.rstrip(" e.")
 
     @property
     def time(self) -> str:
