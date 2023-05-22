@@ -11,11 +11,6 @@ from httpx import AsyncClient, RequestError
 from pydantic import BaseModel, Field, parse_obj_as
 
 
-app = FastAPI()
-
-templates = Jinja2Templates(directory="templates")
-
-
 class Listing(BaseModel):
     description: str
     is_live: bool = Field(..., alias="live")
@@ -45,13 +40,17 @@ async def get_listings() -> Listings:
     async with AsyncClient() as client:
         listings = []
         try:
-            url = "https://apis.is/tv/ruv"
-            response = await client.get(url)
-            results = response.json().get("results")
-            return [parse_obj_as(Listing, listing) for listing in results]
-        except (RequestError, JSONDecodeError) as error:
+            response = await client.get("https://apis.is/tv/ruv")
+            results = response.json()["results"]
+            listings = [parse_obj_as(Listing, listing) for listing in results]
+        except (RequestError, JSONDecodeError, LookupError) as error:
             logging.error(error)
         return listings
+
+
+app = FastAPI()
+
+templates = Jinja2Templates(directory="templates")
 
 
 @app.get("/", response_class=HTMLResponse)
