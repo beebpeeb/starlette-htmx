@@ -1,4 +1,0 @@
-[MASTER]
-disable=missing - class-docstring,missing-function-docstring,missing-module-docstring,too-few-public-methods
-extension-pkg-whitelist = pydantic
-load-plugins = pylint_pydantic

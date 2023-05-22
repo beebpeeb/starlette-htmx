@@ -1,6 +1,3 @@
 .*
-!/.editorconfig
-!/.gitignore
-!/.pylintrc
-/__pycache__/
-/venv/
+!.gitignore
+__pycache__/

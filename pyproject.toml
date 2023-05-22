@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "starlette-htmx"
+version = "0.1.0"
+description = ""
+authors = ["Paul Burt <paul.burt@bbc.co.uk>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+babel = "*"
+fastapi = "*"
+httpx = "*"
+jinja2 = "*"
+uvicorn = "*"
+
+[tool.pyright]
+reportUnknownMemberType = false
+venv = ".venv"
+venvPath = "."
+
+[tool.pyright.analysis]
+typeCheckingMode = "strict"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
