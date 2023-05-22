@@ -1,5 +1,5 @@
 from datetime import date, datetime
-import json
+from json import JSONDecodeError
 import logging
 import re
 
@@ -8,7 +8,7 @@ from fastapi import FastAPI
 from fastapi.requests import Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
-import httpx
+from httpx import AsyncClient, RequestError
 from pydantic import BaseModel, Field, parse_obj_as
 from pydantic.dataclasses import dataclass
 
@@ -21,8 +21,6 @@ regex = re.compile(r"(\W+)e.?\s*$", re.MULTILINE)
 
 
 class Listing(BaseModel):
-    """Pydantic model representing a TV show listing."""
-
     description: str
     is_live: bool = Field(..., alias="live")
     start_time: datetime = Field(..., alias="startTime")
@@ -38,27 +36,25 @@ class Listing(BaseModel):
 
     @property
     def stripped_description(self) -> str:
-        stripped = regex.sub(r"\1", self.description).strip()
-        return stripped
+        return regex.sub(r"\1", self.description).strip()
 
     @property
     def time(self) -> str:
-        time = self.start_time.strftime("%H:%M")
-        return time
+        return self.start_time.strftime("%H:%M")
 
 
 Listings = list[Listing]
 
 
 async def get_listings() -> Listings:
-    async with httpx.AsyncClient() as client:
+    async with AsyncClient() as client:
         listings = []
         try:
             url = "https://apis.is/tv/ruv"
             response = await client.get(url)
             results = response.json().get("results")
             return [parse_obj_as(Listing, listing) for listing in results]
-        except (httpx.RequestError, json.JSONDecodeError) as error:
+        except (RequestError, JSONDecodeError) as error:
             logging.error(error)
         return listings
 
@@ -67,14 +63,12 @@ async def get_listings() -> Listings:
 def homepage_route(request: Request):
     title = "Dagskrá RÚV"
     today = format_date(date.today(), format="full", locale="is")
-    template = "index.html"
     context = dict(request=request, title=title, today=today)
-    return templates.TemplateResponse(template, context)
+    return templates.TemplateResponse("index.html", context)
 
 
 @app.get("/_listings", response_class=HTMLResponse)
 async def listings_route(request: Request):
-    listings: Listings = await get_listings()
-    template = "_listings.html"
+    listings = await get_listings()
     context = dict(request=request, listings=listings)
-    return templates.TemplateResponse(template, context)
+    return templates.TemplateResponse("_listings.html", context)
