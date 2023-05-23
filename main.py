@@ -26,7 +26,7 @@ class Listing(BaseModel):
 
     @property
     def stripped_description(self) -> str:
-        return self.description.removesuffix(" e.")
+        return self.description.removesuffix(" e.").rstrip()
 
     @property
     def time(self) -> str:
